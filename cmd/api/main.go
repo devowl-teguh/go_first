@@ -27,6 +27,7 @@ func main() {
 	}
 
 	// Auto Migrate
+	// Auto Migrate
 	if err := pkg_database.Migrate(db); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
@@ -34,16 +35,22 @@ func main() {
 	// 2. Repository
 	// userRepo := repository.NewInMemoryUserRepository()
 	userRepo := repository.NewGormUserRepository(db)
+	loyaltyRepo := repository.NewGormLoyaltyRepository(db)
+	healthRepo := repository.NewDummyHealthRepository()
 
 	// 2. Service
 	userService := service.NewUserService(userRepo)
+	loyaltyService := service.NewLoyaltyService(loyaltyRepo)
+	healthService := service.NewHealthService(healthRepo)
 
 	// 3. Handler
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(userService, cfg.JWTSecret)
+	loyaltyHandler := handler.NewLoyaltyHandler(loyaltyService)
+	healthHandler := handler.NewHealthHandler(healthService)
 
 	// Router Setup
 	mux := http.NewServeMux()
-	api.RegisterRoutes(mux, userHandler)
+	api.RegisterRoutes(mux, userHandler, loyaltyHandler, healthHandler, cfg.JWTSecret)
 
 	// Server Start
 	port := ":8080"

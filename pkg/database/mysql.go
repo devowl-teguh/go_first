@@ -22,7 +22,7 @@ func ConnectMySQL(dsn string) (*gorm.DB, error) {
 
 // Migrate performs database migrations
 func Migrate(db *gorm.DB) error {
-	if err := db.AutoMigrate(&models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.LoyaltyAccount{}, &models.LoyaltyTransaction{}); err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)
 	}
 	return nil

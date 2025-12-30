@@ -10,7 +10,8 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	DSN string
+	DSN       string
+	JWTSecret string
 }
 
 // Load loads the configuration from environment variables
@@ -40,7 +41,13 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("DSN environment variable is not set and could not be constructed from MYSQL_* variables")
 	}
 
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "default_secret_for_dev_only" // Fallback but should be set
+	}
+
 	return &Config{
-		DSN: dsn,
+		DSN:       dsn,
+		JWTSecret: jwtSecret,
 	}, nil
 }
